@@ -1,104 +1,79 @@
-<!doctype html>
-<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Video content server</title>
-    <meta charset="utf-8">
-    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
-    <link rel="stylesheet" href="css/default.css">
-    <link rel="stylesheet" href="css/google.css">
-    <link rel="stylesheet" href="css/material_icons.css">
-    <link rel="stylesheet" href="css/vue-material.min.css">
-</head>
-<body >
-<div id="index" style="background-color: #EEEEEE; width: 100%; height: 100vh">
+    <meta charset="utf-8"/>
+    <title>Multiple Language Timed Text Sample</title>
+    <meta name="description" content="" />
 
-    <video data-dashjs-player src="/dash/with_sound_1080p_dash.mpd" controls></video>
+    <link rel="stylesheet" href="css/controlbar.css">
+    <script src="js/controlbar.js"></script>
+    <script src="js/dash.all.min.js"></script>
 
-</div>
+    <script>
+//        var FRAGMENTED_CAPTION_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_30fps.mpd",
+        var FRAGMENTED_CAPTION_URL = "/dash/with_sound_1080p_dash.mpd",
+            videoElement,
+            controlbar,
+            player;
 
-<script src="js/vue.min.js"></script>
-<script src="js/vue-material.min.js"></script>
-<script src="js/jquery.min.js"></script>
-<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+        function startVideo() {
+            var url = FRAGMENTED_CAPTION_URL,
+                TTMLRenderingDiv;
 
-<style>
-    video {
-        width: 640px;
-        height: 360px;
-    }
-</style>
+            videoElement = document.querySelector(".videoContainer video");
+            TTMLRenderingDiv = document.querySelector("#ttml-rendering-div");
 
-<script>
-    Vue.use(VueMaterial.default);
-
-    new Vue({
-        data: {
-            crawlerStatus: null,
-            crawlerHandlersStatus: null,
-
-            minIdInRequestQueue: null,
-            minIdInResponseQueue: null,
-            cassandraCurrentIds: [],
-
-            requestQueueContent: [],
-            responseQueueContent: [],
-        },
-        created: function () {
-            this.updateCrawlerStatus();
-            this.updateCrawlerHandlersStatus();
-        },
-        methods: {
-            updateCrawlerStatus: function () {
-                $.get('/status')
-                    .then(response => {
-                        this.crawlerStatus = response;
-                    })
-            },
-            updateCrawlerHandlersStatus: function () {
-                $.get('/status/handlers')
-                    .then(response => {
-                        this.crawlerHandlersStatus = response;
-
-                        if (this.crawlerHandlersStatus.minIdInRequestQueue == null) {
-                            this.minIdInRequestQueue = {id: null, documentKey: null};
-                        } else {
-                            this.minIdInRequestQueue = this.crawlerHandlersStatus.minIdInRequestQueue;
-                        }
-
-                        if (this.crawlerHandlersStatus.minIdInResponseQueue == null) {
-                            this.minIdInResponseQueue = {id: null, documentKey: null};
-                        } else {
-                            this.minIdInResponseQueue = this.crawlerHandlersStatus.minIdInResponseQueue;
-                        }
-
-                        var self = this;
-                        this.cassandraCurrentIds = [];
-                        this.crawlerHandlersStatus.cassandraWorkersCurrentIds.forEach(function (entry) {
-                            self.cassandraCurrentIds.push(entry.id);
-                        });
-                    })
-            },
-            updateRequestQueueContent: function () {
-                $.get('/queue/request')
-                    .then(response => {
-                        this.requestQueueContent = response;
-                    })
-            },
-            updateResponseQueueContent: function () {
-                $.get('/queue/response')
-                    .then(response => {
-                        this.responseQueueContent = response;
-                    })
-            },
-            updateAll: function () {
-                this.updateCrawlerStatus();
-                this.updateCrawlerHandlersStatus();
-                this.updateRequestQueueContent();
-                this.updateResponseQueueContent();
-            }
+            player = dashjs.MediaPlayer().create();
+            player.initialize(videoElement, url, true);
+            player.attachTTMLRenderingDiv(TTMLRenderingDiv);
+            controlbar = new ControlBar(player); // Checkout ControlBar.js for more info on how to target/add text tracks to UI
+            controlbar.initialize();
         }
-    }).$mount('#index');
-</script>
 
+    </script>
+
+    <style>
+        video {
+            width: 640px;
+            height: 360px;
+        }
+
+        .videoContainer{
+            width: 640px;
+        }
+    </style>
+
+<body onload="startVideo()">
+<div class="videoContainer">
+    <video preload="auto" autoplay="true"> </video>
+    <div id="ttml-rendering-div"></div>
+
+    <div id="videoController" class="video-controller unselectable">
+        <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="bottom" title="Play/Pause">
+            <span id="iconPlayPause" class="icon-play"></span>
+        </div>
+        <span id="videoTime" class="time-display">00:00:00</span>
+        <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Fullscreen">
+            <span class="icon-fullscreen-enter"></span>
+        </div>
+        <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Bitrate List">
+            <span class="icon-bitrate"></span>
+        </div>
+        <input type="range" id="volumebar" class="volumebar" value="1" min="0" max="1" step=".01"/>
+        <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Mute">
+            <span id="iconMute" class="icon-mute-off"></span>
+        </div>
+        <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Track List">
+            <span class="icon-tracks"></span>
+        </div>
+        <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Closed Caption / Subtitles">
+            <span class="icon-caption"></span>
+        </div>
+        <span id="videoDuration" class="duration-display">00:00:00</span>
+        <div class="seekContainer">
+            <input type="range" id="seekbar" value="0" class="seekbar" min="0" step="0.01"/>
+        </div>
+    </div>
+</div>
 </body>
 </html>
