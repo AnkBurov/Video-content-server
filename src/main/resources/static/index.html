@@ -1,0 +1,103 @@
+<!doctype html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Video content server</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="css/default.css">
+    <link rel="stylesheet" href="css/google.css">
+    <link rel="stylesheet" href="css/material_icons.css">
+    <link rel="stylesheet" href="css/vue-material.min.css">
+</head>
+<body>
+<div id="index" style="background-color: #EEEEEE; width: 100%; height: 100vh">
+
+    <video data-dashjs-player autoplay src="/dash/vid_rep_1_dash.mpd" controls></video>
+</div>
+
+<script src="js/vue.min.js"></script>
+<script src="js/vue-material.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+
+<style>
+    video {
+        width: 640px;
+        height: 360px;
+    }
+</style>
+
+<script>
+    Vue.use(VueMaterial.default);
+
+    new Vue({
+        data: {
+            crawlerStatus: null,
+            crawlerHandlersStatus: null,
+
+            minIdInRequestQueue: null,
+            minIdInResponseQueue: null,
+            cassandraCurrentIds: [],
+
+            requestQueueContent: [],
+            responseQueueContent: [],
+        },
+        created: function () {
+            this.updateCrawlerStatus();
+            this.updateCrawlerHandlersStatus();
+        },
+        methods: {
+            updateCrawlerStatus: function () {
+                $.get('/status')
+                    .then(response => {
+                        this.crawlerStatus = response;
+                    })
+            },
+            updateCrawlerHandlersStatus: function () {
+                $.get('/status/handlers')
+                    .then(response => {
+                        this.crawlerHandlersStatus = response;
+
+                        if (this.crawlerHandlersStatus.minIdInRequestQueue == null) {
+                            this.minIdInRequestQueue = {id: null, documentKey: null};
+                        } else {
+                            this.minIdInRequestQueue = this.crawlerHandlersStatus.minIdInRequestQueue;
+                        }
+
+                        if (this.crawlerHandlersStatus.minIdInResponseQueue == null) {
+                            this.minIdInResponseQueue = {id: null, documentKey: null};
+                        } else {
+                            this.minIdInResponseQueue = this.crawlerHandlersStatus.minIdInResponseQueue;
+                        }
+
+                        var self = this;
+                        this.cassandraCurrentIds = [];
+                        this.crawlerHandlersStatus.cassandraWorkersCurrentIds.forEach(function (entry) {
+                            self.cassandraCurrentIds.push(entry.id);
+                        });
+                    })
+            },
+            updateRequestQueueContent: function () {
+                $.get('/queue/request')
+                    .then(response => {
+                        this.requestQueueContent = response;
+                    })
+            },
+            updateResponseQueueContent: function () {
+                $.get('/queue/response')
+                    .then(response => {
+                        this.responseQueueContent = response;
+                    })
+            },
+            updateAll: function () {
+                this.updateCrawlerStatus();
+                this.updateCrawlerHandlersStatus();
+                this.updateRequestQueueContent();
+                this.updateResponseQueueContent();
+            }
+        }
+    }).$mount('#index');
+</script>
+
+</body>
+</html>

@@ -34,6 +34,11 @@ fun <T> ResponseEntity<T?>.isMp4ContentType(): ResponseEntity<T?> {
     return this
 }
 
+fun <T> ResponseEntity<T?>.isTextPlain(): ResponseEntity<T?> {
+    headers[CONTENT_TYPE]!! equalsTo listOf("text/plain")
+    return this
+}
+
 fun <T> ResponseEntity<T?>.bodyNotNull(message: String? = null) = this.body ?: throw AssertionError(message)
 
 fun String.trimIfNeeded(trim: Boolean) = if (trim) this.trim() else this
@@ -47,3 +52,5 @@ inline fun <reified R> TestRestTemplate.send(url: String,
 infix fun <EXPECTED, ACTUAL> ACTUAL.equalsTo(arg: EXPECTED) {
     assertEquals(arg, this)
 }
+
+fun ByteArray.asString() = String(this)
