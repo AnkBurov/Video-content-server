@@ -34,8 +34,8 @@ fun <T> ResponseEntity<T?>.isMp4ContentType(): ResponseEntity<T?> {
     return this
 }
 
-fun <T> ResponseEntity<T?>.isTextPlain(): ResponseEntity<T?> {
-    headers[CONTENT_TYPE]!! equalsTo listOf("text/plain")
+fun <T> ResponseEntity<T?>.isDashXml(): ResponseEntity<T?> {
+    headers[CONTENT_TYPE]!! equalsTo listOf("application/dash+xml")
     return this
 }
 

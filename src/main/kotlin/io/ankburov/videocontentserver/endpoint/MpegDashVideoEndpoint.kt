@@ -13,10 +13,18 @@ import reactor.core.scheduler.Schedulers
 @RequestMapping("/dash")
 class MpegDashVideoEndpoint {
 
-    @GetMapping("/{fileName}", produces = ["text/plain"])
+    @GetMapping("/{fileName}", produces = ["application/dash+xml"])
     fun getMp4(@PathVariable("fileName") fileName: String): Mono<out Resource> {
         return Mono.just(fileName)
                 .map { ClassPathResource("samples/$it") }
+                .filter(ClassPathResource::exists)
+                .subscribeOn(Schedulers.elastic())
+    }
+
+    @GetMapping("/{representationId}/{fileName}", produces = ["text/plain"])
+    fun getMp4Chunk(@PathVariable representationId: String, @PathVariable("fileName") fileName: String): Mono<out Resource> {
+        return Mono.just(representationId to fileName)
+                .map { ClassPathResource("samples/${it.first}/${it.second}") }
                 .filter(ClassPathResource::exists)
                 .subscribeOn(Schedulers.elastic())
     }
