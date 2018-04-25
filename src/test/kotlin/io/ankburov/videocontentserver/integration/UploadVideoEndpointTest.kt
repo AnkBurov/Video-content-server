@@ -28,8 +28,9 @@ class UploadVideoEndpointTest {
 
     @Test
     fun uploadVideo() {
-        restTemplate.postForEntity("/upload", generateBody(), String::class.java)
+        val path = restTemplate.postForEntity("/upload", generateBody(), String::class.java)
                 .ok()
+        println(path)
     }
 
     private fun generateBody(): MultiValueMap<String, HttpEntity<*>> {

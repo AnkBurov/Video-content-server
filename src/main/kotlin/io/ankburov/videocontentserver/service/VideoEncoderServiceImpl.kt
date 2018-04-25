@@ -2,6 +2,8 @@ package io.ankburov.videocontentserver.service
 
 import io.ankburov.videocontentserver.model.QualityEnum
 import io.ankburov.videocontentserver.service.cmd.FfmpegCommand
+import io.ankburov.videocontentserver.service.cmd.Mp4BoxCommand
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.scheduler.Schedulers
 import java.nio.ByteBuffer
@@ -10,8 +12,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
+@Service
 class VideoEncoderServiceImpl(
-        val mp4Converter: FfmpegCommand
+        val mp4Converter: FfmpegCommand,
+        val mpegDashConverter: Mp4BoxCommand
 ) : VideoEncoderService {
 
 
@@ -22,7 +26,7 @@ class VideoEncoderServiceImpl(
         val mp4TempDir = Files.createTempDirectory("encode-to-mp4")
 
         val origMp4 = Paths.get(mp4TempDir.toAbsolutePath().toString(), "orig.mp4")
-        Files.newByteChannel(origMp4, StandardOpenOption.CREATE)
+        Files.newByteChannel(origMp4, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
                 .write(byteBuffer)
 
         val convertedMp4Files = Flux.fromIterable(QualityEnum.values().asIterable())
@@ -33,7 +37,9 @@ class VideoEncoderServiceImpl(
                 .collectList()
                 .block() ?: emptyList()
 
-        convertedMp4Files.
+        // folder with mpeg dash content
+        return mpegDashConverter.execute(convertedMp4Files)
 
+//        return contentStorage.saveMpegDashFiles(mpegDashDir)
     }
 }

@@ -21,13 +21,18 @@ class VideoConverterTest {
         val newFile = File(tempDir, "1080p.mp4")
 
 
-        val exec = Runtime.getRuntime().exec("ffmpeg -i ${expectedFile.file.absolutePath} -s hd1080 -c:v libx264 -crf 23 -strict -2 ${newFile.absolutePath}")
+        val pb = ProcessBuilder("cmd.exe /c ffmpeg -i ${expectedFile.file.absolutePath} -s hd1080 -c:v libx264 -crf 23 -strict -2 ${newFile.absolutePath}")
+        println(pb.command())
+        pb.start().waitFor()
+
+
+        val exec = Runtime.getRuntime().exec("cmd.exe /c ffmpeg -i ${expectedFile.file.absolutePath} -s hd1080 -c:v libx264 -crf 23 -strict -2 ${newFile.absolutePath}")
         exec.waitFor()
 
 //        IOUtils.toString(exec.getErrorStream())
 
-        exec.errorStream.bufferedReader()
-                .readLines()
+        println(exec.errorStream.bufferedReader()
+                .readLines())
 
 
         Assert.assertEquals(0, exec.exitValue())

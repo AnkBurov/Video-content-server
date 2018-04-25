@@ -3,10 +3,12 @@ package io.ankburov.videocontentserver.service.cmd
 import io.ankburov.videocontentserver.model.QualityEnum
 import io.ankburov.videocontentserver.utils.execute
 import io.ankburov.videocontentserver.utils.getErrorMessage
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@Component
 class FfmpegCommand {
 
     fun convert(file: Path, quality: QualityEnum): Pair<QualityEnum, Path> {
