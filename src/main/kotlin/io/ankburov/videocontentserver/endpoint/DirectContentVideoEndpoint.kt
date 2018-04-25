@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 import reactor.core.scheduler.Schedulers
 
 /**
@@ -20,7 +21,7 @@ class DirectContentVideoEndpoint {
 
     @GetMapping("/{fileName}", produces = ["video/mp4"])
     fun getMp4(@PathVariable("fileName") fileName: String): Mono<out Resource> {
-        return Mono.just(mp4File)
+        return mp4File.toMono()
                 .subscribeOn(Schedulers.elastic())
     }
 }

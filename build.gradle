@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.20'
+		kotlinVersion = '1.2.31'
 		springBootVersion = '2.0.1.RELEASE'
 	}
 	repositories {
@@ -45,6 +45,9 @@ dependencies {
 	compile('com.fasterxml.jackson.module:jackson-module-kotlin')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	compile("org.jetbrains.kotlin:kotlin-reflect")
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('io.projectreactor:reactor-test')
 }
