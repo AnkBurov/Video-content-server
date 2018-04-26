@@ -3,11 +3,14 @@ package ru.rgs.k6.extension
 import org.junit.Assert.assertEquals
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.client.MultipartBodyBuilder
+import org.springframework.util.MultiValueMap
 
 fun <T> ResponseEntity<T?>.ok(message: String? = null): ResponseEntity<T?> {
     assertEquals(message, HttpStatus.OK, this.statusCode)
@@ -54,3 +57,9 @@ infix fun <EXPECTED, ACTUAL> ACTUAL.equalsTo(arg: EXPECTED) {
 }
 
 fun ByteArray.asString() = String(this)
+
+fun generateBody(file: Resource): MultiValueMap<String, HttpEntity<*>> {
+    val builder = MultipartBodyBuilder()
+    builder.part("file", file)
+    return builder.build()
+}
