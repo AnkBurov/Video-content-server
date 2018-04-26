@@ -26,7 +26,5 @@ class VideoEncoderServiceImpl(
 
         // folder with mpeg dash content
         return mpegDashConverter.execute(convertedMp4Files)
-
-//        return contentStorage.saveMpegDashFiles(mpegDashDir)
     }
 }

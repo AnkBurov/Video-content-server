@@ -4,5 +4,8 @@ import java.nio.file.Path
 
 interface VideoContentStorage {
 
-    fun saveMpegDashFiles(dir: Path): Path
+    /**
+     * @return folder name with content
+     */
+    fun saveMpegDashFiles(dir: Path): String
 }

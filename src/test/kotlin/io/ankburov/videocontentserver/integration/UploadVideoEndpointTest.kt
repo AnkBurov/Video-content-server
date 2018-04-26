@@ -6,15 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ClassPathResource
-import org.springframework.core.io.Resource
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.util.LinkedMultiValueMap
 import ru.rgs.k6.extension.ok
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.util.MultiValueMap
+import ru.rgs.k6.extension.bodyNotNull
 
 
 @RunWith(SpringRunner::class)
@@ -28,9 +25,10 @@ class UploadVideoEndpointTest {
 
     @Test
     fun uploadVideo() {
-        val path = restTemplate.postForEntity("/upload", generateBody(), String::class.java)
+        val folderName = restTemplate.postForEntity("/upload", generateBody(), String::class.java)
                 .ok()
-        println(path)
+                .bodyNotNull()
+        println(folderName)
     }
 
     private fun generateBody(): MultiValueMap<String, HttpEntity<*>> {
@@ -38,5 +36,4 @@ class UploadVideoEndpointTest {
         builder.part("file", expectedFile)
         return builder.build()
     }
-
 }

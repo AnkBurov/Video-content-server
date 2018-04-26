@@ -13,10 +13,10 @@ class VideoContentStorageImpl : VideoContentStorage {
 
     private val videoContentDir = Files.createTempDirectory("video-content-storage")
 
-    override fun saveMpegDashFiles(dir: Path): Path {
+    override fun saveMpegDashFiles(dir: Path): String {
         val uuid = UUID.randomUUID().toString()
         val newDir = File(videoContentDir.absolutePath(), uuid)
         FileUtils.copyDirectory(dir.toFile(), newDir)
-        return newDir.toPath()
+        return uuid
     }
 }
