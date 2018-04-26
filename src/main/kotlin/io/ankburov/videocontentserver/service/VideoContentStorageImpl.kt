@@ -1,5 +1,7 @@
 package io.ankburov.videocontentserver.service
 
+import io.ankburov.videocontentserver.model.MpegDashDir
+import io.ankburov.videocontentserver.model.MpegDto
 import io.ankburov.videocontentserver.utils.absolutePath
 import org.apache.commons.io.FileUtils
 import org.springframework.core.io.FileSystemResource
@@ -16,11 +18,11 @@ class VideoContentStorageImpl : VideoContentStorage {
 
     private val videoContentDir = Files.createTempDirectory("video-content-storage")
 
-    override fun saveMpegDashFiles(dir: Path): String {
+    override fun saveMpegDashFiles(mpegDashDir: MpegDashDir): MpegDto {
         val uuid = UUID.randomUUID().toString()
         val newDir = File(videoContentDir.absolutePath(), uuid)
-        FileUtils.copyDirectory(dir.toFile(), newDir)
-        return uuid
+        FileUtils.copyDirectory(mpegDashDir.filesDir.toFile(), newDir)
+        return MpegDto(uuid, mpegDashDir.mpdName)
     }
 
     override fun getFile(folder: String, fileName: String): Resource {

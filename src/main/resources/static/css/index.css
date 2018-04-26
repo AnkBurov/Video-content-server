@@ -1,0 +1,25 @@
+.md-app {
+    height: 100vh;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.md-drawer {
+    width: auto;
+}
+
+.md-card {
+    width: 98%;
+    height: 100vh;
+    margin: 4px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+video {
+    width: 640px;
+    height: 360px;
+}
+
+.videoContainer {
+    width: 640px;
+}

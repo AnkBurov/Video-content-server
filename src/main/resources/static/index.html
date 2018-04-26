@@ -1,84 +1,286 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8"/>
-    <title>Multiple Language Timed Text Sample</title>
-    <meta name="description" content=""/>
-
+    <title>Video content server</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@beta/dist/theme/default.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
     <link rel="stylesheet" href="css/controlbar.css">
-    <script src="js/controlbar.js"></script>
-    <script src="js/dash.all.min.js"></script>
 
-    <script>
-        //        var FRAGMENTED_CAPTION_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_30fps.mpd",
-        var FRAGMENTED_CAPTION_URL = "/dash/with_sound_1080p_dash.mpd",
-            videoElement,
-            controlbar,
-            player;
+</head>
+<body>
 
-        function startVideo() {
-            var url = FRAGMENTED_CAPTION_URL,
-                TTMLRenderingDiv;
+<div id="app">
 
-            videoElement = document.querySelector(".videoContainer video");
-            TTMLRenderingDiv = document.querySelector("#ttml-rendering-div");
+    <div class="page-container">
+        <md-app>
+            <md-app-toolbar class="md-primary">
+                <span class="md-title">Video content server</span>
+            </md-app-toolbar>
 
-            player = dashjs.MediaPlayer().create();
-            player.initialize(videoElement, url, true);
-            player.attachTTMLRenderingDiv(TTMLRenderingDiv);
-            controlbar = new ControlBar(player); // Checkout ControlBar.js for more info on how to target/add text tracks to UI
-            controlbar.initialize();
-        }
+            <md-app-drawer md-permanent="full">
+                <md-toolbar class="md-transparent" md-elevation="0">
+                    Navigation
+                </md-toolbar>
 
-    </script>
+                <md-list>
 
-    <style>
-        video {
-            width: 640px;
-            height: 360px;
-        }
+                    <md-list-item to="/upload-file">Convert to MPEG-DASH</md-list-item>
 
-        .videoContainer {
-            width: 640px;
-        }
-    </style>
+                    <md-list-item to="/play-file">Play MPEG-DASH file</md-list-item>
 
-<body onload="startVideo()">
-<div class="videoContainer">
-    <video preload="auto" autoplay="true"></video>
-    <div id="ttml-rendering-div"></div>
+                </md-list>
+            </md-app-drawer>
 
-    <div id="videoController" class="video-controller unselectable">
-        <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="bottom" title="Play/Pause">
-            <span id="iconPlayPause" class="icon-play"></span>
-        </div>
-        <span id="videoTime" class="time-display">00:00:00</span>
-        <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Fullscreen">
-            <span class="icon-fullscreen-enter"></span>
-        </div>
-        <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Bitrate List">
-            <span class="icon-bitrate"></span>
-        </div>
-        <input type="range" id="volumebar" class="volumebar" value="1" min="0" max="1" step=".01"/>
-        <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Mute">
-            <span id="iconMute" class="icon-mute-off"></span>
-        </div>
-        <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Track List">
-            <span class="icon-tracks"></span>
-        </div>
-        <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Closed Caption / Subtitles">
-            <span class="icon-caption"></span>
-        </div>
-        <span id="videoDuration" class="duration-display">00:00:00</span>
-        <div class="seekContainer">
-            <input type="range" id="seekbar" value="0" class="seekbar" min="0" step="0.01"/>
-        </div>
+            <md-app-content style="background-color: #EEEEEE">
+                <md-card md-with-hover>
+                    <md-card-content>
+                        <router-view></router-view>
+                    </md-card-content>
+                </md-card>
+            </md-app-content>
+        </md-app>
     </div>
+
 </div>
 
-<form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
-    <p><input type="file" name="file">
-    <p><button type="submit">Submit</button>
-</form>
+<template id="upload-file">
+    <div>
+        <span class="md-title">Upload file and convert it to MPEG-DASH format</span>
+
+        <div class="container">
+            <div class="large-12 medium-12 small-12 cell">
+                <label>File
+                    <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
+                </label>
+                <md-button v-on:click="doUploadFile()" style="color: white;background-color: #4CAF50">Submit</md-button>
+            </div>
+        </div>
+
+        <hr>
+        <span class="md-body-2">Created file folder: {{ createdFileFolder }}</span>
+        <hr>
+        <span class="md-body-2">Created mpd name: {{ createdMpdName }}</span>
+
+        <!--<md-field type="file">
+            <label>Upload file</label>
+            <md-file type="file" v-on:change="handleFileUpload()"></md-file>
+
+            <md-button v-on:click="doUploadFile()" style="color: white;background-color: #4CAF50">Upload</md-button>
+        </md-field>-->
+    </div>
+</template>
+
+<template id="play-file">
+    <div>
+        <md-field>
+            <label>File folder</label>
+            <md-input v-model="fileFolder"></md-input>
+        </md-field>
+
+        <md-field>
+            <label>Mpd file</label>
+            <md-input v-model="mpdFile"></md-input>
+        </md-field>
+
+        <md-button v-on:click="doPlayVideo()" style="color: white;background-color: #4CAF50">Play</md-button>
+
+        <hr>
+
+        <div class="videoContainer">
+            <video preload="auto" autoplay="true"></video>
+            <div id="ttml-rendering-div"></div>
+
+            <div id="videoController" class="video-controller unselectable">
+                <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="bottom" title="Play/Pause">
+                    <span id="iconPlayPause" class="icon-play"></span>
+                </div>
+                <span id="videoTime" class="time-display">00:00:00</span>
+                <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Fullscreen">
+                    <span class="icon-fullscreen-enter"></span>
+                </div>
+                <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Bitrate List">
+                    <span class="icon-bitrate"></span>
+                </div>
+                <input type="range" id="volumebar" class="volumebar" value="1" min="0" max="1" step=".01"/>
+                <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Mute">
+                    <span id="iconMute" class="icon-mute-off"></span>
+                </div>
+                <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Track List">
+                    <span class="icon-tracks"></span>
+                </div>
+                <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Closed Caption / Subtitles">
+                    <span class="icon-caption"></span>
+                </div>
+                <span id="videoDuration" class="duration-display">00:00:00</span>
+                <div class="seekContainer">
+                    <input type="range" id="seekbar" value="0" class="seekbar" min="0" step="0.01"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="foo">
+    <div>
+        <span class="md-title">Foo</span>
+        <md-table v-model="users">
+
+            <md-table-row slot="md-table-row" slot-scope="{ item }">
+                <md-table-cell md-label="ID" md-numeric>{{ item.id }}</md-table-cell>
+                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
+            </md-table-row>
+
+            <md-table-empty-state
+                    md-label="No users found"
+                    :md-description="`No user found for this `">
+            </md-table-empty-state>
+        </md-table>
+    </div>
+</template>
+
+<template id="bar">
+    <div>bar</div>
+</template>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+<script src="https://unpkg.com/vue-material@beta"></script>
+<script src="js/jquery.min.js"></script>
+
+<script src="js/controlbar.js"></script>
+<script src="js/dash.all.min.js"></script>
+
+<script>
+    Vue.use(VueMaterial.default);
+
+    const Foo = Vue.component('foo', {
+        template: '#foo',
+        data: function () {
+            return {
+                users: [],
+            }
+        },
+        created: function () {
+            this.updateUsers()
+        },
+        methods: {
+            updateUsers: function () {
+                var self = this;
+                fetch('/api/users')
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (json) {
+                        self.users = json;
+                    })
+            }
+        }
+    });
+    const Bar = Vue.component('bar', {
+        template: '#bar'
+    });
+    const UploadFile = Vue.component('upload-file', {
+        template: '#upload-file',
+        data: function () {
+            return {
+                uploadingFile: '',
+                createdFileFolder: null,
+                createdMpdName: null
+            }
+        },
+        methods: {
+            handleFileUpload: function(){
+                this.uploadingFile = this.$refs.file.files[0];
+            },
+            doUploadFile: function () {
+                var self = this;
+
+
+                console.log(this.uploadingFile);
+
+                const formData = new FormData();
+                formData.append('file', self.uploadingFile);
+
+                fetch('/upload', {
+                    method: 'post',
+                    headers: {
+                        'Content-Length': self.uploadingFile.size
+                    },
+                    body: formData
+                }).then(function (response) {
+                    return response.json()
+                }).then(function (json) {
+                    self.createdFileFolder = json.folderName;
+                    self.createdMpdName = json.mpdFile;
+                });
+            }
+        }
+    });
+
+    const PlayFile = Vue.component('play-file', {
+        template: '#play-file',
+        data: function () {
+            return {
+                fileFolder: '',
+                mpdFile: '',
+                player: null,
+                controlbar: null
+            }
+        },
+        methods: {
+            doPlayVideo: function(){
+
+                if (typeof player !== 'undefined') {
+                    player.reset()
+                }
+
+                if (typeof controlbar !== 'undefined') {
+                    controlbar.reset()
+                }
+
+                var FRAGMENTED_CAPTION_URL = "/dash-storage/" + this.fileFolder + "/" + this.mpdFile,
+                // var FRAGMENTED_CAPTION_URL = "/dash/with_sound_1080p_dash.mpd",
+                    videoElement;
+
+                var url = FRAGMENTED_CAPTION_URL,
+                    TTMLRenderingDiv;
+
+                videoElement = document.querySelector(".videoContainer video");
+                TTMLRenderingDiv = document.querySelector("#ttml-rendering-div");
+
+                player = dashjs.MediaPlayer().create();
+                player.initialize(videoElement, url, true);
+                player.attachTTMLRenderingDiv(TTMLRenderingDiv);
+                controlbar = new ControlBar(player); // Checkout ControlBar.js for more info on how to target/add text tracks to UI
+                controlbar.initialize();
+            }
+        }
+    });
+
+    const routes = [
+        {path: '/foo', component: Foo},
+        {path: '/bar', component: Bar},
+        {path: '/upload-file', component: UploadFile},
+        {path: '/play-file', component: PlayFile}
+    ];
+
+    const router = new VueRouter({
+        routes // short for `routes: routes`
+    });
+
+    new Vue({
+        name: "Normal",
+        router
+    }).$mount("#app");
+</script>
+
 </body>
+
+
 </html>

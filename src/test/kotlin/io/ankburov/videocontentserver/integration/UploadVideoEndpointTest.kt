@@ -1,5 +1,7 @@
 package io.ankburov.videocontentserver.integration
 
+import io.ankburov.videocontentserver.model.MpegDto
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,9 +25,10 @@ class UploadVideoEndpointTest {
 
     @Test
     fun uploadVideo() {
-        val folderName = restTemplate.postForEntity("/upload", generateBody(expectedFile), String::class.java)
+        val (folderName, mpdFile) = restTemplate.postForEntity("/upload", generateBody(expectedFile), MpegDto::class.java)
                 .ok()
                 .bodyNotNull()
-        println(folderName)
+        assertNotNull(folderName)
+        assertNotNull(mpdFile)
     }
 }

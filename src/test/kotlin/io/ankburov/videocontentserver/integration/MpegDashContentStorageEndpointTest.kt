@@ -1,5 +1,6 @@
 package io.ankburov.videocontentserver.integration
 
+import io.ankburov.videocontentserver.model.MpegDto
 import org.apache.commons.lang3.StringUtils
 import org.junit.Assert
 import org.junit.Test
@@ -25,11 +26,11 @@ class MpegDashContentStorageEndpointTest {
 
     @Test
     fun convertMp4AndGetMpd() {
-        val folderName = restTemplate.postForEntity("/upload", generateBody(expectedFile), String::class.java)
+        val (folderName, mpdFile) = restTemplate.postForEntity("/upload", generateBody(expectedFile), MpegDto::class.java)
                 .ok()
                 .bodyNotNull()
 
-        val url = "/dash-storage/$folderName/mpeg-dash.mpd"
+        val url = "/dash-storage/$folderName/$mpdFile"
         val mpd = restTemplate.getForEntity(url, String::class.java)
                 .ok()
                 .isDashXml()

@@ -1,5 +1,6 @@
 package io.ankburov.videocontentserver.endpoint
 
+import io.ankburov.videocontentserver.model.MpegDto
 import io.ankburov.videocontentserver.service.VideoContentStorage
 import io.ankburov.videocontentserver.service.VideoEncoderService
 import io.ankburov.videocontentserver.utils.writeToTempFile
@@ -19,7 +20,7 @@ class UploadVideoEndpoint(
 ) {
 
     @PostMapping
-    fun uploadVideo(@RequestPart("file") file: FilePart): Mono<String> {
+    fun uploadVideo(@RequestPart("file") file: FilePart): Mono<MpegDto> {
         // file.filename()
 
         return file.content()

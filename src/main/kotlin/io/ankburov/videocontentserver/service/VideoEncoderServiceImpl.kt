@@ -1,5 +1,6 @@
 package io.ankburov.videocontentserver.service
 
+import io.ankburov.videocontentserver.model.MpegDashDir
 import io.ankburov.videocontentserver.model.QualityEnum
 import io.ankburov.videocontentserver.service.cmd.FfmpegCommand
 import io.ankburov.videocontentserver.service.cmd.Mp4BoxCommand
@@ -15,7 +16,7 @@ class VideoEncoderServiceImpl(
 ) : VideoEncoderService {
 
 
-    override fun encodeToMpegDash(origFile: Path): Path {
+    override fun encodeToMpegDash(origFile: Path): MpegDashDir {
         val convertedMp4Files = Flux.fromIterable(QualityEnum.values().asIterable())
                 .parallel()
                 .runOn(Schedulers.parallel())

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Multiple Language Timed Text Sample</title>
+    <meta name="description" content=""/>
+
+    <link rel="stylesheet" href="css/controlbar.css">
+    <script src="js/controlbar.js"></script>
+    <script src="js/dash.all.min.js"></script>
+
+    <script>
+        //        var FRAGMENTED_CAPTION_URL = "http://dash.edgesuite.net/akamai/bbb_30fps/bbb_30fps.mpd",
+        var FRAGMENTED_CAPTION_URL = "/dash/with_sound_1080p_dash.mpd",
+            videoElement,
+            controlbar,
+            player;
+
+        function startVideo() {
+            var url = FRAGMENTED_CAPTION_URL,
+                TTMLRenderingDiv;
+
+            videoElement = document.querySelector(".videoContainer video");
+            TTMLRenderingDiv = document.querySelector("#ttml-rendering-div");
+
+            player = dashjs.MediaPlayer().create();
+            player.initialize(videoElement, url, true);
+            player.attachTTMLRenderingDiv(TTMLRenderingDiv);
+            controlbar = new ControlBar(player); // Checkout ControlBar.js for more info on how to target/add text tracks to UI
+            controlbar.initialize();
+        }
+
+    </script>
+
+    <style>
+        video {
+            width: 640px;
+            height: 360px;
+        }
+
+        .videoContainer {
+            width: 640px;
+        }
+    </style>
+
+<body onload="startVideo()">
+<div class="videoContainer">
+    <video preload="auto" autoplay="true"></video>
+    <div id="ttml-rendering-div"></div>
+
+    <div id="videoController" class="video-controller unselectable">
+        <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="bottom" title="Play/Pause">
+            <span id="iconPlayPause" class="icon-play"></span>
+        </div>
+        <span id="videoTime" class="time-display">00:00:00</span>
+        <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Fullscreen">
+            <span class="icon-fullscreen-enter"></span>
+        </div>
+        <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Bitrate List">
+            <span class="icon-bitrate"></span>
+        </div>
+        <input type="range" id="volumebar" class="volumebar" value="1" min="0" max="1" step=".01"/>
+        <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Mute">
+            <span id="iconMute" class="icon-mute-off"></span>
+        </div>
+        <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Track List">
+            <span class="icon-tracks"></span>
+        </div>
+        <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Closed Caption / Subtitles">
+            <span class="icon-caption"></span>
+        </div>
+        <span id="videoDuration" class="duration-display">00:00:00</span>
+        <div class="seekContainer">
+            <input type="range" id="seekbar" value="0" class="seekbar" min="0" step="0.01"/>
+        </div>
+    </div>
+</div>
+
+<form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
+    <p><input type="file" name="file">
+    <p><button type="submit">Submit</button>
+</form>
+</body>
+</html>

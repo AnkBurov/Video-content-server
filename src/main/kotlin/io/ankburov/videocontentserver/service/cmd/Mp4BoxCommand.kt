@@ -1,5 +1,6 @@
 package io.ankburov.videocontentserver.service.cmd
 
+import io.ankburov.videocontentserver.model.MpegDashDir
 import io.ankburov.videocontentserver.model.QualityEnum
 import io.ankburov.videocontentserver.utils.absolutePath
 import io.ankburov.videocontentserver.utils.execute
@@ -14,7 +15,7 @@ import java.nio.file.Path
 @Component
 class Mp4BoxCommand {
 
-    fun execute(convertedFiles: List<Pair<QualityEnum, Path>>): Path {
+    fun execute(convertedFiles: List<Pair<QualityEnum, Path>>): MpegDashDir {
         require(convertedFiles.isNotEmpty()) { "converted mp4 file list cannot be empty" }
 
         val mpegDashDir = Files.createTempDirectory("split-mp4-to-mpeg-dash-fragments")
@@ -29,7 +30,8 @@ class Mp4BoxCommand {
         cmdLine.addArgument("-segment-name")
         cmdLine.addArgument("\$RepresentationID\$/segment_", true)
         cmdLine.addArgument("-out")
-        cmdLine.addArgument("$mpegDashDirPath/mpeg-dash.mpd", true)
+        val mpdName = "mpeg-dash.mpd"
+        cmdLine.addArgument("$mpegDashDirPath/$mpdName", true)
 
         convertedFiles.map { (quality, file) -> "${file.toAbsolutePath()}#video:id=${quality.code}" }
                 .forEach { cmdLine.addArgument(it, true) }
@@ -40,7 +42,7 @@ class Mp4BoxCommand {
             val exitValue = cmdLine.execute(stdOut, stdErr)
 
             return when (exitValue) {
-                0  -> mpegDashDir
+                0  -> MpegDashDir(mpdName, mpegDashDir)
                 else -> throw IOException(getErrorCause(stdErr))
             }
         }
