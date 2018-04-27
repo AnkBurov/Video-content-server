@@ -32,7 +32,9 @@
 
                     <md-list-item to="/upload-file">Convert to MPEG-DASH</md-list-item>
 
-                    <md-list-item to="/play-file">Play MPEG-DASH file</md-list-item>
+                    <md-list-item to="/play-file">Play uploaded MPEG-DASH content</md-list-item>
+
+                    <md-list-item to="/play-video-classpath">Play regular MP4 content</md-list-item>
 
                 </md-list>
             </md-app-drawer>
@@ -63,32 +65,44 @@
         </div>
 
         <hr>
-        <span class="md-body-2">Created file folder: {{ createdFileFolder }}</span>
+
+        <div>
+            <span class="md-body-2">Created file folder: {{ createdFileFolder }}</span>
+        </div>
+
         <hr>
-        <span class="md-body-2">Created mpd name: {{ createdMpdName }}</span>
 
-        <!--<md-field type="file">
-            <label>Upload file</label>
-            <md-file type="file" v-on:change="handleFileUpload()"></md-file>
+        <div>
+            <span class="md-body-2">Created mpd name: {{ createdMpdName }}</span>
+        </div>
 
-            <md-button v-on:click="doUploadFile()" style="color: white;background-color: #4CAF50">Upload</md-button>
-        </md-field>-->
+        <hr>
+
+        <div>
+            <span class="md-headline">Current status: {{ is_uploaded }}</span>
+        </div>
     </div>
 </template>
 
 <template id="play-file">
     <div>
-        <md-field>
-            <label>File folder</label>
-            <md-input v-model="fileFolder"></md-input>
-        </md-field>
+        <div>
+            <span class="md-title">Play uploaded MPEG-DASH content</span>
+        </div>
 
-        <md-field>
-            <label>Mpd file</label>
-            <md-input v-model="mpdFile"></md-input>
-        </md-field>
+        <div>
+            <md-field>
+                <label>File folder</label>
+                <md-input v-model="fileFolder"></md-input>
+            </md-field>
 
-        <md-button v-on:click="doPlayVideo()" style="color: white;background-color: #4CAF50">Play</md-button>
+            <md-field>
+                <label>Mpd file</label>
+                <md-input v-model="mpdFile"></md-input>
+            </md-field>
+
+            <md-button v-on:click="doPlayVideo()" style="color: white;background-color: #4CAF50">Play</md-button>
+        </div>
 
         <hr>
 
@@ -126,26 +140,18 @@
     </div>
 </template>
 
-<template id="foo">
+<template id="play-video-classpath">
     <div>
-        <span class="md-title">Foo</span>
-        <md-table v-model="users">
+        <div>
+            <span class="md-title">Play regular MP4 video from classpath</span>
+        </div>
 
-            <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="ID" md-numeric>{{ item.id }}</md-table-cell>
-                <md-table-cell md-label="Name" md-sort-by="name">{{ item.name }}</md-table-cell>
-            </md-table-row>
+        <hr>
 
-            <md-table-empty-state
-                    md-label="No users found"
-                    :md-description="`No user found for this `">
-            </md-table-empty-state>
-        </md-table>
+        <div>
+            <video autoplay controls src="/direct/star_trails_1080p.mp4"></video>
+        </div>
     </div>
-</template>
-
-<template id="bar">
-    <div>bar</div>
 </template>
 
 <script src="https://unpkg.com/vue"></script>
@@ -159,39 +165,14 @@
 <script>
     Vue.use(VueMaterial.default);
 
-    const Foo = Vue.component('foo', {
-        template: '#foo',
-        data: function () {
-            return {
-                users: [],
-            }
-        },
-        created: function () {
-            this.updateUsers()
-        },
-        methods: {
-            updateUsers: function () {
-                var self = this;
-                fetch('/api/users')
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (json) {
-                        self.users = json;
-                    })
-            }
-        }
-    });
-    const Bar = Vue.component('bar', {
-        template: '#bar'
-    });
     const UploadFile = Vue.component('upload-file', {
         template: '#upload-file',
         data: function () {
             return {
                 uploadingFile: '',
                 createdFileFolder: null,
-                createdMpdName: null
+                createdMpdName: null,
+                is_uploaded: 'not uploaded'
             }
         },
         methods: {
@@ -207,6 +188,8 @@
                 const formData = new FormData();
                 formData.append('file', self.uploadingFile);
 
+                self.is_uploaded = 'is uploading now';
+
                 fetch('/upload', {
                     method: 'post',
                     headers: {
@@ -218,6 +201,7 @@
                 }).then(function (json) {
                     self.createdFileFolder = json.folderName;
                     self.createdMpdName = json.mpdFile;
+                    self.is_uploaded = 'uploaded'
                 });
             }
         }
@@ -245,7 +229,6 @@
                 }
 
                 var FRAGMENTED_CAPTION_URL = "/dash-storage/" + this.fileFolder + "/" + this.mpdFile,
-                // var FRAGMENTED_CAPTION_URL = "/dash/with_sound_1080p_dash.mpd",
                     videoElement;
 
                 var url = FRAGMENTED_CAPTION_URL,
@@ -263,11 +246,14 @@
         }
     });
 
+    const PlayFileClassPath = Vue.component('play-video-classpath', {
+        template: '#play-video-classpath'
+    });
+
     const routes = [
-        {path: '/foo', component: Foo},
-        {path: '/bar', component: Bar},
         {path: '/upload-file', component: UploadFile},
-        {path: '/play-file', component: PlayFile}
+        {path: '/play-file', component: PlayFile},
+        {path: '/play-video-classpath', component: PlayFileClassPath}
     ];
 
     const router = new VueRouter({
@@ -281,6 +267,5 @@
 </script>
 
 </body>
-
 
 </html>
