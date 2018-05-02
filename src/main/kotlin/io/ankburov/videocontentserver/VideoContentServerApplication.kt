@@ -1,5 +1,6 @@
 package io.ankburov.videocontentserver
 
+import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.spring.SpringCacheManager
 import org.apache.ignite.configuration.CacheConfiguration
 import org.apache.ignite.configuration.IgniteConfiguration
@@ -49,6 +50,8 @@ class VideoContentServerApplication {
         springCacheManager.configuration = igniteConfiguration
         val cacheConfiguration = CacheConfiguration<Any, Any>()
         cacheConfiguration.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))
+        cacheConfiguration.cacheMode = CacheMode.PARTITIONED
+        cacheConfiguration.backups = 3
         springCacheManager.dynamicCacheConfiguration = cacheConfiguration
         return springCacheManager
     }
