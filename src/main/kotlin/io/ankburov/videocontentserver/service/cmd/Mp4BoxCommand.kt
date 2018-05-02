@@ -27,6 +27,7 @@ class Mp4BoxCommand {
         cmdLine.addArgument("-frag")
         cmdLine.addArgument("8000")
         cmdLine.addArgument("-rap")
+        cmdLine.addArgument("-url-template")
         cmdLine.addArgument("-segment-name")
         cmdLine.addArgument("\$RepresentationID\$/segment_", true)
         cmdLine.addArgument("-out")
