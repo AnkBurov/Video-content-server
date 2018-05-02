@@ -1,12 +1,14 @@
 package io.ankburov.videocontentserver.integration
 
 import io.ankburov.videocontentserver.model.MpegDto
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.cache.Cache
 import org.springframework.core.io.ClassPathResource
 import org.springframework.test.context.junit4.SpringRunner
 import ru.rgs.k6.extension.ok
@@ -23,6 +25,9 @@ class UploadVideoEndpointTest {
     @Autowired
     private lateinit var restTemplate: TestRestTemplate
 
+    @Autowired
+    private lateinit var fileCache: Cache
+
     @Test
     fun uploadVideo() {
         val (folderName, mpdFile) = restTemplate.postForEntity("/upload", generateBody(expectedFile), MpegDto::class.java)
@@ -30,5 +35,9 @@ class UploadVideoEndpointTest {
                 .bodyNotNull()
         assertNotNull(folderName)
         assertNotNull(mpdFile)
+
+        val (cachedFolderName, cachedMpdFile) = fileCache.get("star_trails.mp4", MpegDto::class.java)!!
+        assertEquals(folderName, cachedFolderName)
+        assertEquals(mpdFile, cachedMpdFile)
     }
 }

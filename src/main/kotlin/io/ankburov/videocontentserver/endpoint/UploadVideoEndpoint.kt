@@ -4,6 +4,7 @@ import io.ankburov.videocontentserver.model.MpegDto
 import io.ankburov.videocontentserver.service.VideoContentStorage
 import io.ankburov.videocontentserver.service.VideoEncoderService
 import io.ankburov.videocontentserver.utils.writeToTempFile
+import org.springframework.cache.Cache
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,17 +17,23 @@ import reactor.core.scheduler.Schedulers
 @RequestMapping("/upload")
 class UploadVideoEndpoint(
         val videoEncoderService: VideoEncoderService,
-        val contentStorage: VideoContentStorage
+        val contentStorage: VideoContentStorage,
+        val fileCache: Cache
 ) {
 
     @PostMapping
     fun uploadVideo(@RequestPart("file") file: FilePart): Mono<MpegDto> {
-        // file.filename()
 
+        // example of ignite caching, caching based on file name is not really good idea
+        val mpegDto = fileCache.get(file.filename(), MpegDto::class.java)
+        if (mpegDto != null) {
+            return Mono.just(mpegDto)
+        }
         return file.content()
                 .writeToTempFile()
                 .map(videoEncoderService::encodeToMpegDash)
                 .map(contentStorage::saveMpegDashFiles)
+                .doOnEach { it.get()?.let { mpegDto -> fileCache.put(file.filename(), mpegDto) } }
                 .subscribeOn(Schedulers.elastic())
     }
 }
