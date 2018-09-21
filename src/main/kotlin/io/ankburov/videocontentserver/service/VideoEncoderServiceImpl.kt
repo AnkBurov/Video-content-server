@@ -6,6 +6,7 @@ import io.ankburov.videocontentserver.service.cmd.FfmpegCommand
 import io.ankburov.videocontentserver.service.cmd.Mp4BoxCommand
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import java.nio.file.Path
 
@@ -15,17 +16,13 @@ class VideoEncoderServiceImpl(
         val mpegDashConverter: Mp4BoxCommand
 ) : VideoEncoderService {
 
-
-    override fun encodeToMpegDash(origFile: Path): MpegDashDir {
-        val convertedMp4Files = Flux.fromIterable(QualityEnum.values().asIterable())
+    override fun encodeToMpegDash(origFile: Path): Mono<MpegDashDir> {
+        return Flux.fromIterable(QualityEnum.values().asIterable())
                 .parallel()
                 .runOn(Schedulers.parallel())
                 .map { quality -> mp4Converter.convert(origFile, quality) }
                 .sequential()
                 .collectList()
-                .block() ?: emptyList()
-
-        // folder with mpeg dash content
-        return mpegDashConverter.execute(convertedMp4Files)
+                .map(mpegDashConverter::execute) // folder with mpeg dash content
     }
 }

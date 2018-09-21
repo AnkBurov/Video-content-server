@@ -31,9 +31,9 @@ class UploadVideoEndpoint(
         }
         return file.content()
                 .writeToTempFile()
-                .map(videoEncoderService::encodeToMpegDash)
+                .flatMap(videoEncoderService::encodeToMpegDash)
                 .map(contentStorage::saveMpegDashFiles)
-                .doOnEach { it.get()?.let { mpegDto -> fileCache.put(file.filename(), mpegDto) } }
+                .doOnNext { savedMpegDto -> fileCache.put(file.filename(), savedMpegDto) }
                 .subscribeOn(Schedulers.elastic())
     }
 }
